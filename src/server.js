@@ -9,6 +9,8 @@ const app = express()
 connectMongoDB(process.env.MONGODB_URI)
 .then(()=> console.log('MongoDB connected'))
 
+//MiddleWares
+app.use(express.json());
 
 //Routes
 app.use('/api/posts', postsRouter);
