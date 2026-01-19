@@ -2,8 +2,8 @@ import mongoose, { Schema } from "mongoose";
 
 
 //POST Schema
-const blogPostSchema = new Schema({
-    title:{
+const postSchema = new Schema({
+    title: {
         type: String,
         required: true
     },
@@ -11,7 +11,7 @@ const blogPostSchema = new Schema({
         type: String,
         required: true
     },
-    createdAt:{
+    createdAt: {
         type: Date,
         default: Date.now
     }
@@ -21,5 +21,5 @@ const blogPostSchema = new Schema({
 
 
 // Model 
-const BlogPost = mongoose.model('BlogPost', blogPostSchema)
-export default BlogPost
+const Post = mongoose.model('Post', postSchema)
+export default Post
