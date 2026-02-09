@@ -17,13 +17,15 @@ export async function createUser(req, res) {
       password,
     });
 
-    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, {
         expiresIn: '7d'
     });
 
+    //Deleting the password as password still saved in local object in server's memory
+    newUser.password=undefined
     return res.status(201).json({
       success: true,
-      data: {
+      data: { 
         newUser,
         token
       },
@@ -51,7 +53,7 @@ export async function handleLogin(req, res) {
       });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
         expiresIn: '7d'
     });
 
