@@ -1,8 +1,9 @@
 import 'dotenv/config'
 import express from "express"
 import connectMongoDB from './config/db.js'
-import postsRouter from './routes/posts.js'
 
+import postsRouter from './routes/posts.js'
+import authRouter from './routes/auth.js'
 const app = express()
 const PORT = process.env.PORT || 5000
 await connectMongoDB();
@@ -13,6 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 
 
 //Routes
+app.use('/api/auth', authRouter)
 app.use('/api/posts', postsRouter);
 
 
