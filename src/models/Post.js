@@ -1,8 +1,7 @@
-import mongoose, { Schema } from "mongoose";
-
+import mongoose from "mongoose"
 
 //POST Schema
-const postSchema = new Schema({
+const postSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true
@@ -16,7 +15,6 @@ const postSchema = new Schema({
         default: Date.now
     }
 })
-
 
 
 
