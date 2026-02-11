@@ -2,7 +2,7 @@ import Post from '../models/Post.js';
 
 export async function getAllPosts(req, res) {
     try {
-        const allPosts = await Post.find({});
+        const allPosts = await Post.find().populate("author", "username email").sort({createdAt:-1});
         return res.status(200).json(allPosts)
     }
     catch (error) {
@@ -13,7 +13,7 @@ export async function getAllPosts(req, res) {
 export async function getPostById(req, res) {
     try {
         const { id } = req.params;
-        const post = await Post.findById(id);
+        const post = await Post.findById(id).populate("author", "username email");
         return res.status(200).json(post);
     } catch (error) {
         return res.status(500).json({ error: error.message });
@@ -30,7 +30,7 @@ export async function createPost(req, res) {
         if (!title || !content) {
             return res.status(400).json({ error: 'Title and content are required' });
         }
-        const post = await Post.create({ title, content })
+        const post = await Post.create({ title, content, author:req.user._id })
         return res.status(201).json(post)
     } catch (error) {
         return res.status(500).json({ error: error.message });
@@ -87,7 +87,7 @@ export async function deletePost(req, res) {
             return res.status(403).json({ error: "Not authorized" });
         }
         await post.deleteOne();
-        
+
         return res.status(200).json({ status: 'success' })
     }
     catch (error) {
