@@ -1,48 +1,56 @@
-import Post from '../models/Post.js';
+import ApiError from "../utils/apiError.js";
+import Post from "../models/Post.js";
 
-export async function getAllPosts(req, res) {
+export async function getAllPosts(req, res, next) {
     try {
-        const allPosts = await Post.find().populate("author", "username email").sort({createdAt:-1});
+        const allPosts = await Post.find().populate("author", "username email").sort({ createdAt: -1 });
         return res.status(200).json(allPosts)
     }
     catch (error) {
-        return res.status(500).json({ error: error.message });
+        next(error);
     }
 }
 
-export async function getPostById(req, res) {
+export async function getPostById(req, res, next) {
     try {
         const { id } = req.params;
         const post = await Post.findById(id).populate("author", "username email");
+        if (!post) {
+            throw new ApiError(404, "Post not found", "POST_NOT_FOUND");
+        }
         return res.status(200).json(post);
     } catch (error) {
-        return res.status(500).json({ error: error.message });
+        next(error);
     }
 
 }
 
-export async function createPost(req, res) {
+export async function createPost(req, res, next) {
     try {
         if (!req.body) {
-            return res.status(400).json({ error: 'Body is required' });
+            throw new ApiError(400, "Body is required", "MISSING_BODY");
         }
-        const { title, content } = req.body
+        const { title, content, tags } = req.body;
         if (!title || !content) {
-            return res.status(400).json({ error: 'Title and content are required' });
+            throw new ApiError(
+                400,
+                "Title and content are required",
+                "MISSING_FIELDS",
+            );
         }
-        const post = await Post.create({ title, content, author:req.user._id })
+        const post = await Post.create({ title, content, tags, author: req.user._id })
         return res.status(201).json(post)
     } catch (error) {
-        return res.status(500).json({ error: error.message });
+        next(error);
     }
 
 }
 
-export async function updatePost(req, res) {
+export async function updatePost(req, res, next) {
     try {
         const { id } = req.params
         if (!req.body) {
-            return res.status(400).json({ error: 'Body is required' });
+            throw new ApiError(400, "Body is required", "MISSING_BODY");
         }
         const { title, content } = req.body;
 
@@ -51,46 +59,50 @@ export async function updatePost(req, res) {
         if (content) update.content = content;
 
         if (Object.keys(update).length === 0) {
-            return res.status(400).json({ error: 'At least one field (title or content) is required' });
+            throw new ApiError(
+                400,
+                "At least one field (title or content) is required",
+                "MISSING_FIELDS",
+            );
         }
 
         const post = await Post.findById(id);
 
         if (!post) {
-            return res.status(404).json({ error: 'Post not found' });
+            throw new ApiError(404, "Post not found", "POST_NOT_FOUND");
         }
 
-        if(post.author.toString()!==req.user._id.toString()){
-            return res.status(403).json({ error: "Not authorized" });
+        if (post.author.toString() !== req.user._id.toString()) {
+            throw new ApiError(403, "Not authorized", "NOT_AUTHORIZED");
         }
 
         if (title) post.title = title;
         if (content) post.content = content;
 
-        await post.save();  
+        await post.save();
 
         return res.status(200).json(post);
 
     } catch (error) {
-        return res.status(500).json({ error: error.message });
+        next(error);
     }
 }
 
-export async function deletePost(req, res) {
+export async function deletePost(req, res, next) {
     try {
         const { id } = req.params;
         const post = await Post.findById(id);
         if (!post) {
-            return res.status(404).json({ error: 'Post not found' });
+            throw new ApiError(404, "Post not found", "POST_NOT_FOUND");
         }
-        if(post.author.toString()!==req.user._id.toString()){
-            return res.status(403).json({ error: "Not authorized" });
+        if (post.author.toString() !== req.user._id.toString()) {
+            throw new ApiError(403, "Not authorized", "NOT_AUTHORIZED");
         }
         await post.deleteOne();
 
         return res.status(200).json({ status: 'success' })
     }
     catch (error) {
-        return res.status(500).json({ error: error.message });
+        next(error);
     }
 }
