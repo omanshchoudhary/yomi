@@ -3,8 +3,46 @@ import Post from "../models/Post.js";
 
 export async function getAllPosts(req, res, next) {
     try {
-        const allPosts = await Post.find().populate("author", "username email").sort({ createdAt: -1 });
-        return res.status(200).json(allPosts)
+
+        //Adding pagination here
+        const page= parseInt(req.query.page) || 1;
+        const limit= parseInt(req.query.limit) || 10;
+        const skip = (page-1)*limit;
+
+        //Adding default filter here
+        const filter={};
+
+        //Filter by tag
+        if(req.query.tag){
+            const tags = req.query.tag.split(",");
+            filter.tags = { $in: tags };
+        }
+
+        //Adding search filter
+        if(req.query.q){
+            const searchRegex = new RegExp(req.query.q, "i");
+            filter.$or = [
+                { title: { $regex: searchRegex } },
+                { content: { $regex: searchRegex } },
+            ];
+        }
+        
+        //Adding sort params 
+        let sortOption = {createdAt: -1};
+        if(req.query.sort){
+            sortOption = req.query.sort.split(",").join(" ");
+        }
+
+
+        const totalPosts = await Post.countDocuments(filter);
+        const allPosts = await Post.find(filter).populate("author", "username email").sort(sortOption).skip(skip).limit(limit);
+        return res.status(200).json({
+            success:true,
+            data: allPosts,
+            currentPage: page,
+            totalPages: Math.ceil(totalPosts/limit),
+            totalPosts
+        })
     }
     catch (error) {
         next(error);
