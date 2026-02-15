@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
 
 async function connectMongoDB(){
+    if (process.env.NODE_ENV === 'test') {
+        return;
+    }
     try{
         const conn=await mongoose.connect(process.env.MONGODB_URI)
 

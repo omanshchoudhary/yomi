@@ -29,7 +29,7 @@ export async function createUser(req, res, next) {
     return res.status(201).json({
       success: true,
       data: {
-        newUser,
+        user: newUser,
         token,
       },
     });

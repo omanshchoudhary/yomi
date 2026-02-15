@@ -40,15 +40,26 @@ app.use(helmet());
 app.use(cors())
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(limiter);  
+
+if (process.env.NODE_ENV !== 'test') {
+  app.use(limiter);  
+}
 
 
 //Routes
-app.use('/api/auth',authLimiter, authRouter)
+if (process.env.NODE_ENV === 'test') {
+  app.use('/api/auth', authRouter)
+} else {
+  app.use('/api/auth',authLimiter, authRouter)
+}
 app.use('/api/users', userRouter);
 app.use('/api/posts', postsRouter);
 
 //Error Handler MiddleWare
 app.use(errorHandler)
 
-app.listen(PORT, () => console.log(`Server started at ${process.env.PORT}`))
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => console.log(`Server started at ${process.env.PORT}`))
+}
+
+export default app;

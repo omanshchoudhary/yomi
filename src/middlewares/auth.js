@@ -3,7 +3,8 @@ import User from "../models/User.js";
 
 export default async function auth(req, res, next) {
   try {
-    const token = req.header("Authorization")?.replace("Bearer ", "");
+    const authHeader = req.headers.authorization || req.header("Authorization");
+    const token = authHeader?.replace("Bearer ", "");
 
     if (!token) {
       throw new Error("No token provided");
