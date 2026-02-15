@@ -97,6 +97,7 @@ Create a `.env` file in the root directory:
 ```env
 PORT=3000
 MONGODB_URI=mongodb://127.0.0.1:27017/yomi
+TEST_MONGODB_URI=mongodb://127.0.0.1:27017/yomi_test
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
 NODE_ENV=development
 ```
@@ -614,32 +615,44 @@ npm test -- --watch
 - ✅ Post retrieval (pagination, filtering, search, sorting)
 - ✅ Post updates (authorization checks)
 - ✅ Post deletion (authorization checks)
-- ✅ User's posts retrieval
 
 **Example Test Output:**
 
 ```
  PASS  tests/auth.test.js
-  Auth Endpoints
-    POST /api/auth/register
-      ✓ should register a new user (156 ms)
-      ✓ should return 409 for duplicate email (45 ms)
-      ✓ should return 400 for missing fields (12 ms)
-    POST /api/auth/login
-      ✓ should login with correct credentials (89 ms)
-      ✓ should return 401 for wrong password (78 ms)
+   Auth Endpoints
+     POST /api/auth/register
+       ✓ should register a new user (140 ms)
+       ✓ should return 409 for duplicate email (211 ms)
+       ✓ should return 400 for missing fields (8 ms)
+     POST /api/auth/login
+       ✓ should login with correct credentials (159 ms)
+       ✓ should return 401 for wrong password (158 ms)
 
  PASS  tests/posts.test.js
-  Post Endpoints
-    GET /api/posts
-      ✓ should get all posts (34 ms)
-      ✓ should support pagination (28 ms)
-      ✓ should support sorting (31 ms)
-      ✓ should support tag filtering (29 ms)
-      ✓ should support search (33 ms)
-    POST /api/posts
-      ✓ should create a post (authenticated) (67 ms)
-      ✓ should return 401 for unauthenticated (15 ms)
+   Post Endpoints
+     GET /api/posts
+       ✓ should get all posts (191 ms)
+       ✓ should support pagination (104 ms)
+       ✓ should support sorting (98 ms)
+       ✓ should support tag filtering (99 ms)
+       ✓ should support search (90 ms)
+     POST /api/posts
+       ✓ should create a post (authenticated) (91 ms)
+       ✓ should return 401 for unauthenticated (88 ms)
+     PUT /api/posts/:id
+       ✓ should update own post (100 ms)
+       ✓ should return 403 for another user post (193 ms)
+     DELETE /api/posts/:id
+       ✓ should delete own post (96 ms)
+       ✓ should return 403 for another user post (175 ms)
+
+ PASS  tests/authMiddleware.test.js
+   Auth Middleware
+     ✓ should pass with valid token (151 ms)
+     ✓ should return 401 without token (6 ms)
+     ✓ should return 401 with invalid token (6 ms)
+     ✓ should return 401 with malformed header (5 ms)
 
 Test Suites: 3 passed, 3 total
 Tests:       20 passed, 20 total
